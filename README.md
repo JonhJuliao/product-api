@@ -3,6 +3,9 @@
 API REST minimalista para **produtos**, feita com **Spring Boot 3 (Java 17)**.  
 Durante a disciplina de **Gestão de Configuração II**, a API será evoluída — o foco principal é o **flow (GitHub Flow) + CI/CD**.
 
+O **GitHub Flow** foi o flow escolhido, pois trata-se de uma API simples, então um fluxo de trabalho mais simples é mais adequado.
+
+
 ---
 
 ## ⚙️ Requisitos
