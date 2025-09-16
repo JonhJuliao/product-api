@@ -88,6 +88,7 @@ INSERT INTO produto (nome, categoria) VALUES ('Mouse Gamer', 'Periferico');
 ## 🌐 Endpoints
 
 - **GET** `/api/produtos` — lista todos os produtos  
+- - **POST** `/api/produtos` — cria um produto
   - Body (JSON):
     ```json
     { "id": 1, "nome": "Headset USB", "categoria": "Periferico" }
@@ -103,6 +104,17 @@ INSERT INTO produto (nome, categoria) VALUES ('Mouse Gamer', 'Periferico');
    URL: `http://localhost:8080/api/produtos`
 3. Send → Deve retornar `200 OK` com a lista de produtos.
 
+### POST *(disponível após a Feature 2)*
+1. Método: **POST**  
+   URL: `http://localhost:8080/api/produtos`
+2. Aba **Headers**:  
+   `Content-Type: application/json`
+3. Aba **Body** → **raw** → **JSON**:
+   ```json
+   { "nome": "Teclado Mecânico", "categoria": "Periferico" }
+   ```
+4. Send → Esperado **201 Created** + **Location** no header apontando para `/api/produtos/{id}`.
+5. Faça um GET novamente e confirme o novo item na lista.
 ---
 
 ## 🧰 Testando com curl (alternativa)
