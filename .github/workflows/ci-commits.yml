@@ -1,0 +1,37 @@
+name: CI on Commits
+
+on:
+  push:
+    branches: ["**"]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    env:
+      TARGET_BRANCH: main
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Trocar para a branch específica (atividade frequente)
+        run: |
+          git fetch origin ${{ env.TARGET_BRANCH }} --depth=1
+          git checkout ${{ env.TARGET_BRANCH }}
+
+      - name: Instalar Java 17 (Temurin) + cache Maven
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+
+      - name: Baixar dependências (offline-ready)
+        run: mvn -B -q -DskipTests dependency:go-offline
+
+      - name: Compilar
+        run: mvn -B -q -DskipTests package
+
+      - name: Executar testes
+        run: mvn -B test
