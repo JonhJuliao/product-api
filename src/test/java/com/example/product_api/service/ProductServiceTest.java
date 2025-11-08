@@ -4,6 +4,7 @@ import com.example.product_api.domain.Product;
 import com.example.product_api.dto.ProductRequest;
 import com.example.product_api.dto.ProductResponse;
 import com.example.product_api.repository.ProductRepository;
+import com.example.product_api.service.exception.ProductNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -15,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -79,6 +81,32 @@ class ProductServiceTest {
         assertThat(enviado.getName()).isEqualTo("Keyboard");
         assertThat(enviado.getCategory()).isEqualTo("Periferic");
 
+        verifyNoMoreInteractions(productRepository);
+    }
+
+    @Test
+    void delete_deveExcluirQuandoExiste(){
+        Long id = 1L;
+        when(productRepository.existsById(id)).thenReturn(true);
+
+        service.delete(id);
+
+        verify(productRepository, times(1)).existsById(id);
+        verify(productRepository, times(1)).deleteById(id);
+        verifyNoMoreInteractions(productRepository);
+    }
+
+    @Test
+    void delete_deveLancarNotFoundQuandoExiste(){
+        Long id = 999L;
+        when(productRepository.existsById(id)).thenReturn(false);
+
+        assertThatThrownBy(()->service.delete(id))
+                .isInstanceOf(ProductNotFoundException.class)
+                .hasMessageContaining("999");
+
+        verify(productRepository, times(1)).existsById(id);
+        verify(productRepository, never()).deleteById(anyLong());
         verifyNoMoreInteractions(productRepository);
     }
 }
