@@ -33,4 +33,10 @@ public class ProductController {
                 .buildAndExpand(createdProduct.id()).toUri();
         return ResponseEntity.created(uriLocation).body(createdProduct);
     }
+
+    @DeleteMapping
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        productService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
 }
