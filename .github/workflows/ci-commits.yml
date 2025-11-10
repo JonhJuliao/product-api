@@ -37,8 +37,8 @@ jobs:
       - name: Coverage (JaCoCo report)
         run: ./mvnw -B -q jacoco:report
 
-      - name: Coverage Gate (JaCoCo verify)
-        run: ./mvnw -B -q jacoco:check
+      - name: Coverage Gate (JaCoCo check)
+        run: ./mvnw -B -q jacoco:check@check
 
       # 5) Verificação de estilo (Spotless)
       - name: Style Check (Spotless)
