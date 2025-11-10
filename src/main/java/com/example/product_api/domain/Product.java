@@ -1,11 +1,11 @@
 package com.example.product_api.domain;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.persistence.Column;
 
 @Entity
 @Table(name = "product")
@@ -21,7 +21,8 @@ public class Product {
   @Column(nullable = false)
   String category;
 
-  public Product() { };
+  public Product() {}
+  ;
 
   public Product(String name, String category) {
     this.name = name;

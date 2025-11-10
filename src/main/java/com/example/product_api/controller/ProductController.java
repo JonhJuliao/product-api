@@ -33,10 +33,7 @@ public class ProductController {
 
     var createdProduct = productService.save(request);
     var uriLocation =
-        uriComponentsBuilder
-                .path("/api/products/{id}")
-                .buildAndExpand(createdProduct.id())
-                .toUri();
+        uriComponentsBuilder.path("/api/products/{id}").buildAndExpand(createdProduct.id()).toUri();
     return ResponseEntity.created(uriLocation).body(createdProduct);
   }
 
