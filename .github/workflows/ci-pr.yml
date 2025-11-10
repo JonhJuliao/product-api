@@ -20,10 +20,19 @@ jobs:
           java-version: '17'
           cache: 'maven'
 
+      - name: Garantir arquivos do Checkstyle no workspace
+        run: |
+          set -e
+          # baixa o ruleset do PR/push (pela SHA exata)
+          curl -fsSL "https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${GITHUB_SHA}/checkstyle.xml" -o checkstyle.xml
+          # baixa o suppressions do PR/push (pela mesma SHA)
+          curl -fsSL "https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${GITHUB_SHA}/checkstyle-suppressions.xml" -o checkstyle-suppressions.xml
+          ls -la checkstyle*.xml
+
       - name: Checkstyle (style) - regras de estilo
         run: |
           mvn -q -DskipTests=true \
-            -Dcheckstyle.config.location="https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${GITHUB_SHA}/checkstyle.xml" \
+            -Dcheckstyle.config.location=checkstyle.xml \
             org.apache.maven.plugins:maven-checkstyle-plugin:3.3.1:check
 
       - name: Baixar dependências (offline-ready)
