@@ -1,13 +1,16 @@
 package com.example.product_api.controller;
 
-import com.example.product_api.dto.ProductRequest;
-import com.example.product_api.dto.ProductResponse;
-import com.example.product_api.service.ProductService;
-import jakarta.validation.Valid;
 import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import com.example.product_api.dto.ProductRequest;
+import com.example.product_api.dto.ProductResponse;
+import com.example.product_api.service.ProductService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/products")
