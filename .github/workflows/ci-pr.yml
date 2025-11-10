@@ -25,6 +25,9 @@ jobs:
           java-version: '17'
           cache: 'maven'
 
+      - name: Checkstyle (style) - regras de estilo
+        run: mvn -q -DskipTests=true checkstyle:check
+
       - name: Baixar dependências (offline-ready)
         run: mvn -B -q -DskipTests dependency:go-offline
 
@@ -33,3 +36,6 @@ jobs:
 
       - name: Executar testes
         run: mvn -B test
+
+      - name: Verifica cobertura no Jacoco (Definido em 90% no pom)
+        run: mvn -q jacoco:report jacoco:check #O Jacoco está configurado com 90%, o verify irá falhar se não bater
