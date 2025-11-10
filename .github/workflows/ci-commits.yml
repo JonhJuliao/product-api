@@ -5,33 +5,41 @@ on:
     branches: ["**"]
 
 jobs:
-  build-and-test:
+  build-test-quality:
     runs-on: ubuntu-latest
-    env:
-      TARGET_BRANCH: main
+
     steps:
-      - name: Checkout do repositório
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Trocar para a branch específica (atividade frequente)
-        run: |
-          git fetch origin ${{ env.TARGET_BRANCH }} --depth=1
-          git checkout ${{ env.TARGET_BRANCH }}
-
-      - name: Instalar Java 17 (Temurin) + cache Maven
+      - name: Java 17 (Temurin) + cache Maven
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: temurin
           java-version: '17'
-          cache: 'maven'
+          cache: maven
 
-      - name: Baixar dependências (offline-ready)
-        run: mvn -B -q -DskipTests dependency:go-offline
+      # 1) Baixar dependências (offline-ready)
+      - name: Dependencies (go-offline)
+        run: ./mvnw -B -q -DskipTests dependency:go-offline
 
-      - name: Compilar
-        run: mvn -B -q -DskipTests package
+      # 2) Compilar (sem testes)
+      - name: Compile
+        run: ./mvnw -B -q -DskipTests package
 
-      - name: Executar testes
-        run: mvn -B test
+      # 3) Testes (gera coverage.exec)
+      - name: Test
+        run: ./mvnw -B test
+
+      # 4) Cobertura (gera relatório + aplica regra ≥ 90%)
+      - name: Coverage (JaCoCo report)
+        run: ./mvnw -B -q jacoco:report
+
+      - name: Coverage Gate (JaCoCo check)
+        run: ./mvnw -B -q jacoco:check@check
+
+      # 5) Verificação de estilo (Spotless)
+      - name: Style Check (Spotless)
+        run: ./mvnw -B -q spotless:check
