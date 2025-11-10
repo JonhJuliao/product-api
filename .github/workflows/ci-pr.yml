@@ -21,9 +21,10 @@ jobs:
           cache: 'maven'
 
       - name: Checkstyle (style) - regras de estilo
-        run: mvn -q -DskipTests=true
-          -Dcheckstyle.config.location="${{ github.workspace }}/checkstyle.xml"
-          org.apache.maven.plugins:maven-checkstyle-plugin:3.3.1:check
+        run: |
+          mvn -q -DskipTests=true \
+            -Dcheckstyle.config.location="https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${GITHUB_SHA}/checkstyle.xml" \
+            org.apache.maven.plugins:maven-checkstyle-plugin:3.3.1:check
 
       - name: Baixar dependências (offline-ready)
         run: mvn -B -q -DskipTests dependency:go-offline
