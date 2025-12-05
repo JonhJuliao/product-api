@@ -3,6 +3,7 @@ name: CI on Main (Jar • Docker Build • Docker Publish)
 on:
   push:
     branches: ["main"]
+  workflow_dispatch: { }
 
 jobs:
   jar:
