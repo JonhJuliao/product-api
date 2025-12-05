@@ -1,0 +1,105 @@
+name: CI on Main (Jar • Docker Build • Docker Publish)
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  jar:
+    name: Build & Test (JAR)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Java 17 (Temurin) + cache Maven
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Dependencies (go-offline)
+        run: ./mvnw -B -q -DskipTests dependency:go-offline
+
+      - name: Compile
+        run: ./mvnw -B -q -DskipTests package
+
+      - name: Test
+        run: ./mvnw -B test
+
+      - name: Coverage (report)
+        run: ./mvnw -B -q jacoco:report
+
+      - name: Coverage Gate (≥90%)
+        run: ./mvnw -B -q jacoco:check@check
+
+      - name: Style Check (Spotless)
+        run: ./mvnw -B -q spotless:check
+
+  docker_build:
+    name: Docker • Build Image
+    runs-on: ubuntu-latest
+    needs: jar
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set image tags
+        id: vars
+        run: |
+          VERSION=$(./mvnw -q -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive org.codehaus.mojo:exec-maven-plugin:3.5.1:exec)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "sha=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+
+      - name: Build image
+        run: |
+          IMAGE="${{ github.repository_owner }}/product-api"
+          docker build -t "$IMAGE:main-${{ steps.vars.outputs.sha }}" -t "$IMAGE:${{ steps.vars.outputs.version }}" .
+
+      - name: Save image as artifact (debug/trace)
+        run: |
+          mkdir -p ./image
+          IMAGE="${{ github.repository_owner }}/product-api"
+          docker save "$IMAGE:main-${{ steps.vars.outputs.sha }}" | gzip > ./image/product-api.tar.gz
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: product-api-image
+          path: ./image/product-api.tar.gz
+          retention-days: 7
+
+  docker_publish:
+    name: Docker • Publish to Docker Hub
+    runs-on: ubuntu-latest
+    needs: docker_build
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set image tags
+        id: vars
+        run: |
+          VERSION=$(./mvnw -q -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive org.codehaus.mojo:exec-maven-plugin:3.5.1:exec)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "sha=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+
+      - name: Docker login
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build (repeat) & Push
+        run: |
+          REPO="${{ secrets.DOCKERHUB_USERNAME }}/product-api"
+          docker build -t "$REPO:main-${{ steps.vars.outputs.sha }}" -t "$REPO:${{ steps.vars.outputs.version }}" -t "$REPO:latest" .
+          docker push "$REPO:main-${{ steps.vars.outputs.sha }}"
+          docker push "$REPO:${{ steps.vars.outputs.version }}"
+          docker push "$REPO:latest"

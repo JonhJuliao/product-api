@@ -126,3 +126,13 @@ INSERT INTO produto (nome, categoria) VALUES ('Mouse Gamer', 'Periferico');
 # GET
 curl -s http://localhost:8080/api/produtos | jq
 ``` 
+
+## Docker
+
+Imagens oficiais no Docker Hub:  
+`https://hub.docker.com/r/JontinhaJ/product-api`
+
+### Como executar
+```bash
+docker run --rm -p 8080:8080 JontinhaJ/product-api:latest
+# GET http://localhost:8080/api/products
