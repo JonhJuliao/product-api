@@ -8,6 +8,13 @@ O **GitHub Flow** foi o flow escolhido, pois trata-se de uma API simples, então
 
 ---
 
+## Status
+
+[![Docker Pulls](https://badgen.net/docker/pulls/jontinhaj/product-api)](https://hub.docker.com/r/jontinhaj/product-api)
+
+**Docker Hub:** https://hub.docker.com/r/jontinhaj/product-api
+
+
 ## ⚙️ Requisitos
 
 - Java 17
