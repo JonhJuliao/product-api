@@ -1,0 +1,29 @@
+---
+- name: Instalar/atualizar product-api via Docker (lab)
+  hosts: servidores
+  remote_user: root
+  become: false
+
+  vars:
+    image_repo: "jontinhaj/product-api"
+    image_tag: "latest"
+    container_name: "product-api"
+    app_port: "8080"
+    host_port: "8080"
+
+  tasks:
+    - name: docker pull
+      ansible.builtin.shell: docker pull {{ image_repo }}:{{ image_tag }}
+      args: { warn: false }
+
+    - name: remove container antigo (se existir)
+      ansible.builtin.shell: docker rm -f {{ container_name }} 2>/dev/null || true
+      changed_when: false
+
+    - name: sobe container
+      ansible.builtin.shell: >
+        docker run -d --name {{ container_name }}
+        -p {{ host_port }}:{{ app_port }}
+        --restart unless-stopped
+        {{ image_repo }}:{{ image_tag }}
+      args: { warn: false }
